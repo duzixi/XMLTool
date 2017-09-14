@@ -33,7 +33,7 @@ function XML(filePath) {
  	//转载xml文件
  	if(isOk){
  		this.xmlDoc = xmlDoc;
- 		alert("this.xmlDoc = xmlDoc;");
+ 		alert("xmlDoc:" + xmlDoc);
  		this.root = xmlDoc.documentElement; // Safari出错
  		alert("this.root = xmlDoc.documentElement;");
  		alert("文件" + this.filePath + "载入成功");
