@@ -4,17 +4,14 @@
 <script src="XML.js"> </script>
 <script>
 function init() {
-	alert("init");
 	var testXml = new XML("test.xml");
-	// alert(testXml);
-	alert(testXml);
-	testXml.getRootName();
-	alert("getRootName");
+	document.getElementById("rootName").innerHTML = testXml.getRootName();
+
 }
 </script>
 </head>
 
 <body onload="init()">
-XML测试
+<div id="rootName"></div>
 </body>
 </html>
