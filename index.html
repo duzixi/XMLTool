@@ -3,15 +3,70 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <script src="XML.js"> </script>
 <script>
+
+Array.prototype.show = function (separator) {
+	var str = "";
+	for (var i = 0; i < this.length; i++) {
+		str += this[i] + (i == this.length - 1 ? "" : separator);
+	}
+	return str;
+}
+
+var elmXmls = new Array();
+
 function init() {
-	var testXml = new XML("test.xml");
+	var testXml = new XML("xml/test");
 	document.getElementById("rootName").innerHTML = testXml.getRootName();
 
+	var systemXml = new XML("xml/system");
+	
+	var dataTagNode = systemXml.getSingleNode("datatag");
+	// alert(dataTagNode.innerHTML );  // Firefox OK
+	var names = systemXml.getChildNames("datatag");
+	var attributes = systemXml.getChildAttributes("datatag", "text");
+
+	// document.getElementById("systemRootName").innerHTML = names.show(",") + "<br/>";
+	document.getElementById("systemRootName").innerHTML = names.show(",") + "<br/>" + attributes.show(",");
+
+	/*
+	for (var i = 0; i < names.length; i++) {
+		elmXmls[i] = new XML("xml/" + names[i]);
+	}
+	*/
 }
+
+function search() {
+	var keyWord = document.getElementById("keyWord").value;
+	// alert(keyWord);
+	// 遍历每一个文件
+	var str = "";
+	for (var i = 0; i < elmXmls.length; i++) {
+		var nodes = elmXmls[i].selectNodeContains(keyWord);
+		// alert(nodes.length);
+		for (var j = 0; j < nodes.length; j++ ){
+			var elmName = nodes[j].parentNode.childNodes[0].childNodes[0].nodeValue;
+			str +=elmName + "<br/>";
+			var strProp=nodes[j].childNodes[0].nodeValue;
+			str +=strProp + "<br/>";
+		}
+	}
+	document.getElementById("searchResult").innerHTML += str;
+}
+
 </script>
 </head>
 
 <body onload="init()">
 <div id="rootName"></div>
+<div id="systemRootName"></div>
+<h3>文本搜索</h3>
+<form onsubmit="search();return false;">
+<input type='text' id='keyWord'  size="50" value="名"/> 
+<input id ="btSearch" type='submit' value='开始查找'/>
+<br/>
+包含：<span id="searchArea"></span>
+</form>
+<div id="searchResult" style="clear:both;">
+</div>
 </body>
 </html>
