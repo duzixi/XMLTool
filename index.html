@@ -23,16 +23,16 @@ function init() {
 	var dataTagNode = systemXml.getSingleNode("datatag");
 	// alert(dataTagNode.innerHTML );  // Firefox OK
 	var names = systemXml.getChildNames("datatag");
+	// alert(names.length);
 	var attributes = systemXml.getChildAttributes("datatag", "text");
 
 	// document.getElementById("systemRootName").innerHTML = names.show(",") + "<br/>";
 	document.getElementById("systemRootName").innerHTML = names.show(",") + "<br/>" + attributes.show(",");
 
-	/*
 	for (var i = 0; i < names.length; i++) {
 		elmXmls[i] = new XML("xml/" + names[i]);
 	}
-	*/
+	
 }
 
 function search() {
@@ -44,13 +44,33 @@ function search() {
 		var nodes = elmXmls[i].selectNodeContains(keyWord);
 		// alert(nodes.length);
 		for (var j = 0; j < nodes.length; j++ ){
-			var elmName = nodes[j].parentNode.childNodes[0].childNodes[0].nodeValue;
-			str +=elmName + "<br/>";
-			var strProp=nodes[j].childNodes[0].nodeValue;
-			str +=strProp + "<br/>";
+			if (j == -1) {
+				alert(j + ":"+ nodes[j].innerHTML);
+				alert(nodes[j].parentNode.innerHTML);
+				nodes[j].parentNode = elmXmls[i].cleanEmptyTextNode(nodes[j].parentNode.childNodes);
+				alert(nodes[j].parentNode.childNodes[0].innerHTML);
+				nodes[j].parentNode.childNodes[0] = elmXmls[i].cleanEmptyTextNode(nodes[j].parentNode.childNodes[0].childNodes);
+				// alert(nodes[j].parentNode.childNodes[0].childNodes[0].innerHTML);
+			}
+			if (elmXmls[i].browsertype == BrowserType.IE) {
+				var elmName = nodes[j].parentNode.childNodes[0].childNodes[0].nodeValue; // 子 搜索会出错
+				str += elmName + "<br/>";
+				var strProp = nodes[j].childNodes[0].nodeValue;
+				str += strProp + "<br/><br/>";
+			} else {
+				if (nodes[j] == null) {
+					break;
+				}
+				nodes[j].parentNode = elmXmls[i].cleanEmptyTextNode(nodes[j].parentNode.childNodes);
+				var elmName = nodes[j].parentNode.childNodes[0].innerHTML;
+				str += elmName + "<br/>";
+				var strProp = nodes[j].childNodes[0].nodeValue;
+				str += strProp + "<br/><br/>";
+			}
+			
 		}
 	}
-	document.getElementById("searchResult").innerHTML += str;
+	document.getElementById("searchResult").innerHTML = str;
 }
 
 </script>
@@ -61,7 +81,7 @@ function search() {
 <div id="systemRootName"></div>
 <h3>文本搜索</h3>
 <form onsubmit="search();return false;">
-<input type='text' id='keyWord'  size="50" value="名"/> 
+<input type='text' id='keyWord'  size="50" value="杜子"/> 
 <input id ="btSearch" type='submit' value='开始查找'/>
 <br/>
 包含：<span id="searchArea"></span>

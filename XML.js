@@ -7,7 +7,6 @@ if(typeof BrowserType == "undefined"){
 }
 
 
-
 XML = function (filePath) {
 	this.filePath = filePath + ".xml";
 	
@@ -26,11 +25,11 @@ XML = function (filePath) {
  			isOk = xmlDoc.load(this.filePath);
             this.browsertype = BrowserType.Firefox;
  		}catch(e){
- 			try{ // 谷歌,Safari 浏览器
+ 			try{ // Chrome,Safari 浏览器
  				var xmlhttp = new window.XMLHttpRequest();  
          		xmlhttp.open("GET",this.filePath,false);  
          		xmlhttp.send(null);  
-                // alert(xmlhttp.responseText);
+                // alert(xmlhttp.responseText); // 如果有responseText 但没有responseXML 就是XML格式或编码问题
          		xmlDoc = xmlhttp.responseXML;
          		isOk = true;
                 this.browsertype = BrowserType.Safari;
@@ -41,13 +40,7 @@ XML = function (filePath) {
  	}
 
  	if(isOk){
-        
-        // 谷歌浏览器不支持 
-        // http://www.lxway.com/811690101.htm
-        // http://www.cnblogs.com/clso/p/4787854.html
-
  		this.xmlDoc = xmlDoc;
-        // alert(xmlDoc);
  		this.root = xmlDoc.documentElement; 
  	} else {
  		alert("文件" + this.filePath + "载入失败");
@@ -57,7 +50,6 @@ XML = function (filePath) {
 XML.prototype.getRootName = function () {
 	return this.root.nodeName;
 }
-
 
 XML.prototype.getSingleNode = function(nodeName) {
     
@@ -70,27 +62,35 @@ XML.prototype.getSingleNode = function(nodeName) {
 }
 
 XML.prototype.childCount = function(nodeName) {
-    return this.getSingleNode(nodeName).childNodes.length;
+    var childNodes = this.cleanEmptyTextNode(this.getSingleNode(nodeName).childNodes);
+    return childNodes.length;
+}
+
+// 判断是否为空的文本节点
+XML.prototype.isEmpty = function (node){
+    if (node == null) {
+        return false;
+    }
+    return node.nodeType == 3 && /\s/.test(node.nodeValue);
+}
+
+XML.prototype.cleanEmptyTextNode = function (childNodes) {
+    var parentNode = childNodes[0].parentNode;
+    for(var i = 0; i < childNodes.length; i++) { 
+        //如果是文本节点，并且值为空，则删除该节点 
+        if(this.isEmpty(childNodes[i])) { 
+            parentNode.removeChild(childNodes[i]);        
+        }
+    } 
+    return parentNode;
 }
 
 XML.prototype.getChildNames = function(nodeName) {
     var names = new Array();
     var node = this.getSingleNode(nodeName);
-    // alert(node.innerHTML); // OK 没问题
-    // alert(node.childNodes.length); // 必须没有空格空行 否则有问题
 
-/*
-解决办法2：调用childNodes属性之前先将空格删除 
-for(vari = 0; i < node.length; i++) { 
-   //如果是文本节点，并且值为空，则删除该节点 
-   if(node[i].nodeType == 3 && /\s/.test(node[i].nodeValue)) { 
-      node[i].parentNode.removeChild(node[i]);        
-   }
-} 
+    node = this.cleanEmptyTextNode(node.childNodes);
 
-alert(node.length); 
-
-*/
     var count = node.childNodes.length;
     for (var i = 0; i < count; i++) {
        names[i] = node.childNodes[i].tagName;
@@ -98,11 +98,12 @@ alert(node.length);
     return names;
 }
 
-// var elementName=elementClass.childNodes[i].getAttribute("text");
-
 XML.prototype.getChildAttributes = function (nodeName, attribute) {
     var attributes = new Array();
     var node = this.getSingleNode(nodeName);
+
+    node = this.cleanEmptyTextNode(node.childNodes);
+
     var count = node.childNodes.length;
     for (var i = 0; i < count; i++) {
        attributes[i] = node.childNodes[i].getAttribute(attribute);
@@ -120,15 +121,29 @@ XML.prototype.selectNodeContains = function (keyword) {
         return this.root.selectNodes(xPath);
     } else {
         var arr = new Array();
-        var result = this.xmlDoc.evaluate(xPath, this.xmlDoc, null, XPathResult.ANY_TYPE, null);
-        var nodes = result.iterateNext(); //枚举第一个元素
-        arr[arr.length] = nodes;
-        while (nodes) {
-            // 对 nodes 执行操作;
-            nodes=result.iterateNext(); //枚举下一个元素
-            arr[arr.length] = nodes;
+        var nsResolver = this.xmlDoc.createNSResolver (this.root);
+        var result = this.xmlDoc.evaluate(xPath, this.root, nsResolver, XPathResult.ANY_TYPE, null);
+        var node = result.iterateNext(); //枚举第一个元素
+        if(!this.isEmpty(node)) { 
+            arr[arr.length] = node;
+        }
+        
+        while (node) {
+            node = result.iterateNext(); //枚举下一个元素
+            if (!node) {
+                break;
+            }
+            if(!this.isEmpty(node)) { 
+                arr[arr.length] = node;
+            }
         }
         return arr;
     }
     
 }
+
+// 参考文献：
+
+// Chrome,Firefox 浏览器不支持  setProperty XPath
+// http://www.lxway.com/811690101.htm
+// http://www.cnblogs.com/clso/p/4787854.html
