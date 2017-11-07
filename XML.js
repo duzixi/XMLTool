@@ -6,9 +6,9 @@ if(typeof BrowserType == "undefined"){
     BrowserType.Safari = 2;
 }
 
-
+// XML构造函数
 XML = function (filePath) {
-	this.filePath = filePath + ".xml";
+	this.filePath = filePath;
 	
 	var xmlDoc;
 	var isOk;
@@ -47,10 +47,12 @@ XML = function (filePath) {
  	}
 }
 
+// 返回根节点名
 XML.prototype.getRootName = function () {
 	return this.root.nodeName;
 }
 
+// 返回单一节点
 XML.prototype.getSingleNode = function(nodeName) {
     
     if (this.browsertype == BrowserType.IE) {
@@ -61,6 +63,7 @@ XML.prototype.getSingleNode = function(nodeName) {
     }
 }
 
+// 返回子节点个数
 XML.prototype.childCount = function(nodeName) {
     var childNodes = this.cleanEmptyTextNode(this.getSingleNode(nodeName).childNodes);
     return childNodes.length;
@@ -74,6 +77,7 @@ XML.prototype.isEmpty = function (node){
     return node.nodeType == 3 && /\s/.test(node.nodeValue);
 }
 
+// 清除子节点中的空文本节点并返回父节点
 XML.prototype.cleanEmptyTextNode = function (childNodes) {
     var parentNode = childNodes[0].parentNode;
     for(var i = 0; i < childNodes.length; i++) { 
@@ -85,6 +89,7 @@ XML.prototype.cleanEmptyTextNode = function (childNodes) {
     return parentNode;
 }
 
+// 获取子节点名称
 XML.prototype.getChildNames = function(nodeName) {
     var names = new Array();
     var node = this.getSingleNode(nodeName);
@@ -98,6 +103,7 @@ XML.prototype.getChildNames = function(nodeName) {
     return names;
 }
 
+// 获取子节点属性
 XML.prototype.getChildAttributes = function (nodeName, attribute) {
     var attributes = new Array();
     var node = this.getSingleNode(nodeName);
@@ -111,6 +117,7 @@ XML.prototype.getChildAttributes = function (nodeName, attribute) {
     return attributes;
 }
 
+// 选择子节点文本中包含特定关键字
 XML.prototype.selectNodeContains = function (keyword) {
     // 先对关键字做字符串处理
     keyword.replace(/'/g,"");
@@ -141,9 +148,3 @@ XML.prototype.selectNodeContains = function (keyword) {
     }
     
 }
-
-// 参考文献：
-
-// Chrome,Firefox 浏览器不支持  setProperty XPath
-// http://www.lxway.com/811690101.htm
-// http://www.cnblogs.com/clso/p/4787854.html
