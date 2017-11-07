@@ -1,0 +1,39 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script src="../XML.js"> </script>
+<script>
+
+Array.prototype.show = function (separator) {
+	var str = "";
+	for (var i = 0; i < this.length; i++) {
+		str += this[i] + (i == this.length - 1 ? "" : separator);
+	}
+	return str;
+}
+var cityXml
+function init() {
+	cityXml = new XML("city.xml");
+	document.getElementById("rootName").innerHTML = cityXml.getRootName();
+	document.getElementById("province").innerHTML = cityXml.getSingleNode("province").getAttribute("name");
+	document.getElementById("city").innerHTML = cityXml.getSingleNode("province/city").getAttribute("name");
+	document.getElementById("provinceCount").innerHTML = cityXml.childCount("province");
+	document.getElementById("cityName").innerHTML = cityXml.getChildAttributes("province","name").show(",");
+}
+
+</script>
+
+</head>
+
+<body onload="init()">
+
+
+获取文本根节点名 getRootName()：<span id="rootName"></span></br>
+第一个省份名 getSingleNode("province").getAttribute("name"):<span id="province"></span></br>
+第一个市名 getSingleNode("province/city").getAttribute("name"):<span id="city"></span></br>
+北京市市区共有 childCount("province"):<span id="provinceCount"></span>个</br>
+这些区的名字为 getChildAttributes("province","name")：<span id="cityName"></span></br>
+
+
+</body>
+</html>

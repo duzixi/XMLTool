@@ -65,8 +65,8 @@ XML.prototype.getSingleNode = function(nodeName) {
 
 // 返回子节点个数
 XML.prototype.childCount = function(nodeName) {
-    var childNodes = this.cleanEmptyTextNode(this.getSingleNode(nodeName).childNodes);
-    return childNodes.length;
+    var node = this.cleanEmptyTextNode(this.getSingleNode(nodeName).childNodes);
+    return node.childNodes.length;
 }
 
 // 判断是否为空的文本节点
@@ -146,5 +146,12 @@ XML.prototype.selectNodeContains = function (keyword) {
         }
         return arr;
     }
-    
+}
+
+Array.prototype.show = function (separator) {
+    var str = "";
+    for (var i = 0; i < this.length; i++) {
+        str += this[i] + (i == this.length - 1 ? "" : separator);
+    }
+    return str;
 }
